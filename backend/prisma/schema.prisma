@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+model Transcript {
+  id         String   @id @default(cuid())
+  rawText    String
+  sourceMeta Json?
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  agentRuns   AgentRun[]
+  callInsight CallInsight?
+}
+
+model AgentRun {
+  id            String   @id @default(cuid())
+  transcriptId  String
+  step          String
+  inputSnapshot Json?
+  outputRaw     Json?
+  model         String?
+  latencyMs     Int?
+  createdAt     DateTime @default(now())
+  transcript Transcript @relation(fields: [transcriptId], references: [id])
+}
+
+model CallInsight {
+  id                String   @id @default(cuid())
+  transcriptId      String   @unique
+  customerProblem   String?
+  severity          String?
+  currentSolution   String?
+  buyingIntent      String?
+  buyingIntentScore Int?
+  nextStep          String?
+  leadScore         Int?
+  isComplete        Boolean  @default(false)
+  missingFields     String[]
+  fieldEvidence     Json?
+  createdAt         DateTime @default(now())
+  transcript Transcript  @relation(fields: [transcriptId], references: [id])
+  objections Objection[]
+  followUps  FollowUp[]
+}
+
+model Objection {
+  id        String  @id @default(cuid())
+  insightId String
+  objection String
+  category  String?
+  insight CallInsight @relation(fields: [insightId], references: [id])
+}
+
+model FollowUp {
+  id        String   @id @default(cuid())
+  insightId String
+  type      String
+  content   String
+  createdAt DateTime @default(now())
+  insight CallInsight @relation(fields: [insightId], references: [id])
+}
