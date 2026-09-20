@@ -58,6 +58,12 @@ async function main() {
   console.log(JSON.stringify(result.extraction.field_evidence, null, 2));
   console.log("\n--- Objections Identified ---");
   console.log(JSON.stringify(result.extraction.objections, null, 2));
+
+  console.log("\n--- Grounding Verification ---");
+  console.log("Field Results     :", result.grounding.fieldResults);
+  console.log("Low Confidence    :", result.grounding.lowConfidenceFields);
+  console.log("All Passed?       :", result.grounding.allPassed);
+
   console.log("\n==========================================");
   console.log("✅ Verified and saved in Supabase!");
   console.log("==========================================");
