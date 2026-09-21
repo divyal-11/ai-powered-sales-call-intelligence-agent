@@ -50,7 +50,8 @@ export async function logAgentRun(data: {
 // and marks the transcript as completed.
 export async function saveExtractionToDB(
   transcriptId: string,
-  extraction: Extraction
+  extraction: Extraction,
+  leadScore: number,
 ) {
   return prisma.$transaction(async (tx) => {
     // 1. Upsert call insight
@@ -63,6 +64,7 @@ export async function saveExtractionToDB(
         buyingIntent: extraction.buying_intent,
         buyingIntentScore: extraction.buying_intent_score,
         nextStep: extraction.next_step,
+        leadScore:leadScore ?? undefined,
         isComplete: extraction.is_complete,
         missingFields: extraction.missing_fields,
         fieldEvidence: extraction.field_evidence,
@@ -75,6 +77,7 @@ export async function saveExtractionToDB(
         buyingIntent: extraction.buying_intent,
         buyingIntentScore: extraction.buying_intent_score,
         nextStep: extraction.next_step,
+        leadScore:leadScore ?? undefined,
         isComplete: extraction.is_complete,
         missingFields: extraction.missing_fields,
         fieldEvidence: extraction.field_evidence,
