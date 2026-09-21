@@ -24,7 +24,7 @@ async function main() {
       rawText,
       sourceMeta: {
         company: "prestige grp",
-        caller: "vardhan",
+        caller: "StoneForge Sales Rep",
         prospect: "senior project Leader(prestige)",
         filename: "call1.txt",
       },
@@ -66,6 +66,19 @@ async function main() {
   console.log("\n--- Calculated Lead Score ---");
   console.log("Lead Score        :", `${result.leadScore.score}/100 (${result.leadScore.tier})`);
   console.log("Score Breakdown   :", result.leadScore.breakdown);
+
+  console.log("\n--- Generated Follow-Up Email Draft ---");
+  console.log("Subject :", result.followUp.emailSubject);
+  console.log("\n" + result.followUp.emailBody);
+  console.log("\n--- Suggested Qualification Questions ---");
+  result.followUp.suggestedQuestions.forEach((q, i) =>
+    console.log(`  ${i + 1}. ${q}`)
+  );
+  console.log("\n--- Action Items ---");
+  result.followUp.actionItems.forEach((a, i) =>
+    console.log(`  ${i + 1}. ${a}`)
+  );
+
   
   console.log("\n==========================================");
   console.log("✅ Verified and saved in Supabase!");
