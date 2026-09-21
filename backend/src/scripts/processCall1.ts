@@ -63,7 +63,10 @@ async function main() {
   console.log("Field Results     :", result.grounding.fieldResults);
   console.log("Low Confidence    :", result.grounding.lowConfidenceFields);
   console.log("All Passed?       :", result.grounding.allPassed);
-
+  console.log("\n--- Calculated Lead Score ---");
+  console.log("Lead Score        :", `${result.leadScore.score}/100 (${result.leadScore.tier})`);
+  console.log("Score Breakdown   :", result.leadScore.breakdown);
+  
   console.log("\n==========================================");
   console.log("✅ Verified and saved in Supabase!");
   console.log("==========================================");
