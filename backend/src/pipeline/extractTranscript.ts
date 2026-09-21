@@ -1,4 +1,5 @@
 import { runExtractionLLM } from "../services/llmService";
+import {calculateLeadScore} from "./leadScoring";
 import {
   getTranscriptById,
   updateTranscriptStatus,
@@ -36,7 +37,13 @@ export async function extractTranscript(transcriptId: string) {
       transcript.rawText
     );
 
-    // 5. Log LLM run into AgentRun audit table
+    //5.calc deterministic lead score(with grounding pennalties)
+    const leadScoreResult = calculateLeadScore(
+      extraction,
+      groundingResults.lowConfidenceFields
+    );
+
+    // 6. Log LLM run into AgentRun audit table
     await logAgentRun({
       transcriptId,
       step: "extraction",
@@ -44,19 +51,25 @@ export async function extractTranscript(transcriptId: string) {
       outputRaw:{
         extraction,
         groundingResults,
+        leadScore: leadScoreResult,
       },
       model,
       latencyMs,
     });
 
-    // 6. Save insights and objections in a database transaction
-    const savedInsight = await saveExtractionToDB(transcriptId, extraction);
+    // 7. Save insights and objections in a database transaction
+    const savedInsight = await saveExtractionToDB(
+      transcriptId,
+      extraction,
+      leadScoreResult.score
+    );
 
     return {
       success: true,
       insight: savedInsight,
       extraction,
       grounding: groundingResults,
+      leadScore: leadScoreResult,
       latencyMs,
     };
   } catch (error) {
