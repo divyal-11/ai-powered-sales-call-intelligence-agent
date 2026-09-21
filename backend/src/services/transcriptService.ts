@@ -1,9 +1,8 @@
 import prisma from "../db/prisma";
 import { Extraction } from "../pipeline/extractionSchema";
 
-/**
- * Fetches a transcript by its unique ID.
- */
+//Fetches a transcript by its unique ID.
+
 export async function getTranscriptById(transcriptId: string) {
   return prisma.transcript.findUnique({
     where: { id: transcriptId },
@@ -105,4 +104,39 @@ export async function saveExtractionToDB(
 
     return insight;
   });
+}
+
+import {FollowUpResult} from "../pipeline/generateFollowUp";
+
+//Saves generated follow-ups to database
+export async function saveFollowUpsToDB(
+  insightId: string,
+  followUpResult: FollowUpResult
+){
+  //clear any existing fllow ups for this insight
+  await prisma.followUp.deleteMany({where: {insightId}});
+
+  const records = [
+    {
+      insightId,
+      type: "email",
+      content: `Subject: ${followUpResult.emailSubject}\n\n${followUpResult.emailBody}`,
+    },
+    ...followUpResult.suggestedQuestions.map((q) => ({
+      insightId,
+      type: "question",
+      content: q,
+    })),
+    ...followUpResult.actionItems.map((a) => ({
+      insightId,
+      type: "action_item",
+      content: a,
+    })),
+  ];
+
+  await prisma.followUp.createMany({
+    data: records,
+  });
+  return prisma.followUp.findMany({ where: { insightId } });
+
 }
