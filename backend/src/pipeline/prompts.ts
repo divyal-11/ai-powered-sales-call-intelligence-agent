@@ -38,7 +38,7 @@ You MUST return a JSON object with this EXACT structure:
 
 CRITICAL RULES:
 1. Noisy Speech-to-Text: The transcript is messy audio speech-to-text. Map phonetic mistakes to reality (e.g. "See face" or "the steepest" = seepage, "Versan" = Vardan, "Prestige" = Prestige Group).
-2. Verbatim Quotes: Every field in "field_evidence" MUST be an exact quote from the transcript text.
+2. Verbatim Quotes: Every field in "field_evidence" MUST be a single, continuous exact quote directly from the transcript. Do NOT stitch separate sentences with ellipses (...).
 3. Objections: If no objections were raised, return an empty array [].
 4. Return ONLY valid JSON.`;
 
