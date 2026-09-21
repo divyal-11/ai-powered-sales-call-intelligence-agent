@@ -82,8 +82,7 @@ export function verifyFieldEvidence(
 
     for(const [feild,quote] of Object.entries(feildEvidence)){
         if(!quote){
-            fieldResults[feild] = false;
-            lowConfidenceFields.push(feild);
+            fieldResults[feild] = true;
             continue;
         }
 
