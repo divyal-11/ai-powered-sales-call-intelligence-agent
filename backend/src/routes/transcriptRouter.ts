@@ -67,6 +67,15 @@ router.get("/", async (req: Request, res: Response) => {
         status: true,
         sourceMeta: true,
         createdAt: true,
+        callInsight:{
+          select:{
+            leadScore: true,
+            severity: true,
+            buyingIntent: true,
+            buyingIntentScore: true,
+            customerProblem: true,
+          }
+        }
         // rawText intentionally excluded — it can be huge, don't send in list view
       },
     });
