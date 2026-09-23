@@ -5,3 +5,4 @@ package.json
 .env.local
 dist/
 sales-call-intelligence-agent-blueprint.md
+remaining-tasks.md

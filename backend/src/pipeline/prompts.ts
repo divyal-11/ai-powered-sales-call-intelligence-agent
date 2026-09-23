@@ -83,7 +83,7 @@ Return ONLY valid JSON.`;
 export function buildFollowUpUserPrompt(insight: {
   customer_problem: string;
   current_solution: string | null;
-  next_step: string;
+  next_step: string | null;
   missing_fields: string[];
   objections: Array<{ objection: string; category: string }>;
 }): string {

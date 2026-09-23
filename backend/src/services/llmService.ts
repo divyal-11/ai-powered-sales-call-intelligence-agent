@@ -35,7 +35,7 @@ export async function runExtractionLLM(
       { role: "user", content: buildExtractionUserPrompt(rawText) },
     ],
     response_format: { type: "json_object" },
-    max_completion_tokens: 2048,
+    max_completion_tokens: 4096,
     temperature: 0,
   });
 
@@ -47,11 +47,31 @@ export async function runExtractionLLM(
   }
 
   const parsedJson = JSON.parse(rawContent) as any;
-  if (typeof parsedJson?.severity === "string") {
-    parsedJson.severity = parsedJson.severity.toLowerCase().trim();
+    if (typeof parsedJson?.severity === "string") {
+    const s = parsedJson.severity.toLowerCase().trim();
+    if (s.includes("high") || s.includes("crit") || s.includes("sever") || s.includes("urg") || s.includes("extrem")) {
+      parsedJson.severity = "high";
+    } else if (s.includes("low") || s.includes("min") || s.includes("none")) {
+      parsedJson.severity = "low";
+    } else {
+      parsedJson.severity = "medium";
+    }
+  } else {
+    parsedJson.severity = "medium";
   }
+
+  
   if (typeof parsedJson?.buying_intent === "string") {
-    parsedJson.buying_intent = parsedJson.buying_intent.toLowerCase().trim();
+    const b = parsedJson.buying_intent.toLowerCase().trim();
+    if (b.includes("high") || b.includes("hot") || b.includes("strong")) {
+      parsedJson.buying_intent = "high";
+    } else if (b.includes("low") || b.includes("cold") || b.includes("none") || b.includes("uninterested")) {
+      parsedJson.buying_intent = "low";
+    } else {
+      parsedJson.buying_intent = "medium";
+    }
+  } else {
+    parsedJson.buying_intent = "low";
   }
   const extraction = ExtractionSchema.parse(parsedJson);
 

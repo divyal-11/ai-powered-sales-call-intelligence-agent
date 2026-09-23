@@ -5,8 +5,8 @@ const FieldEvidenceSchema = z.object({
     severity: z.string(),
     current_solution: z.string().nullable(),
     
-    buying_intent: z.string(),
-    next_step: z.string()
+    buying_intent: z.string().nullable(),
+    next_step: z.string().nullable()
 })
 
 const ObjectionSchema = z.object({
@@ -21,7 +21,7 @@ export const ExtractionSchema = z.object({
     current_solution: z.string().nullable(),
     buying_intent: z.enum(["high","medium","low"]),
     buying_intent_score: z.number().int().min(1).max(100),
-    next_step: z.string(),
+    next_step: z.string().nullable(),
     is_complete: z.boolean(),
     missing_fields: z.array(z.string()),
     field_evidence: FieldEvidenceSchema,
