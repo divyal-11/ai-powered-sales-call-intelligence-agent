@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getTranscriptDetail } from "../../../lib/api";
 import { FullTranscriptDetail } from "../../../types";
+import { useTheme } from "../../../lib/theme";
 
 export default function CallDetailPage() {
   const params = useParams();
   const router = useRouter();
   const callId = params.id as string;
+  const { theme, toggleTheme } = useTheme();
 
   const [detail, setDetail] = useState<FullTranscriptDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,11 +147,10 @@ export default function CallDetailPage() {
         alignItems: "center",
         justifyContent: "space-between",
         borderBottom: "1px solid var(--border-subtle)",
-        backgroundColor: "rgba(10, 11, 14, 0.8)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        backgroundColor: "var(--bg-surface)",
         flexShrink: 0,
         zIndex: 20,
+        transition: "background-color var(--transition-normal), border-color var(--transition-normal)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
           {/* Back Button */}
@@ -224,8 +225,30 @@ export default function CallDetailPage() {
           </div>
         </div>
 
-        {/* Right: Actions & Circular Lead Scorecard */}
-        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+        {/* Right: Actions, Theme Toggle & Circular Lead Scorecard */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {/* Light / Dark Mode Toggle */}
+          <button
+            onClick={toggleTheme}
+            title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
+            style={{
+              width: "34px",
+              height: "34px",
+              borderRadius: "var(--radius-sm)",
+              backgroundColor: "var(--bg-surface-elevated)",
+              border: "1px solid var(--border-subtle)",
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "0.9rem",
+              transition: "all var(--transition-fast)",
+            }}
+          >
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
+
           {emailItem && (
             <button
               onClick={handleCopyEmail}
