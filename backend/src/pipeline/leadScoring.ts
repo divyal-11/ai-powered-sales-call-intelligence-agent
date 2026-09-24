@@ -21,12 +21,15 @@ export function calculateLeadScore(
   extraction: Extraction,
   lowConfidenceFields: string[] = [],
 ): LeadScoreResult {
-  //buying intent(0 to 40)
-  const intentPoints = Math.round(
-    (Math.max(0, Math.min(100, extraction.buying_intent_score)) / 100) * 40,
-  );
+  // 1. Buying Intent Points (Deterministic: High = 30, Medium = 15, Low = 5)
+  let intentPoints = 5;
+  if (extraction.buying_intent === "high") {
+    intentPoints = 30;
+  } else if (extraction.buying_intent === "medium") {
+    intentPoints = 15;
+  }
 
-  //problem severity
+  // 2. Problem Severity Points (High = 25, Medium = 15, Low = 5)
   let severityPoints = 5;
   if (extraction.severity === "high") {
     severityPoints = 25;
@@ -34,8 +37,8 @@ export function calculateLeadScore(
     severityPoints = 15;
   }
 
-  //next step actionabilitty
-  const nextStepLower = (extraction.next_step || "").toLocaleLowerCase();
+  // 3. Next Step Actionability Points (Concrete commitment = 20, None/Passive = 5)
+  const nextStepLower = (extraction.next_step || "").toLowerCase();
   const hasConcreteNextStep =
     !nextStepLower.includes("none") &&
     !nextStepLower.includes("n/a") &&
@@ -48,32 +51,38 @@ export function calculateLeadScore(
 
   const nextStepPoints = hasConcreteNextStep ? 20 : 5;
 
-  //completeness
-  let completenessPoints = 15;
-  if (!extraction.is_complete && extraction.missing_fields?.length > 0) {
-    completenessPoints = Math.max(0, 15 - extraction.missing_fields.length * 5);
+  // 4. Qualification & Completeness Points (Objective signals, not LLM guess)
+  let completenessPoints = 0;
+  if (extraction.customer_problem && extraction.customer_problem.trim().length > 0) {
+    completenessPoints += 5; // Valid customer problem identified
+  }
+  if (extraction.current_solution && extraction.current_solution.trim().length > 0) {
+    completenessPoints += 5; // Incumbent workflow/competitor identified
+  }
+  if (hasConcreteNextStep) {
+    completenessPoints += 5; // Timeline / action committed
   }
 
-  //deductions -5 per objection
+  // 5. Objection Deductions (-5 pts per objection, max 20)
   const objectionDeductions = Math.min(
     20,
     (extraction.objections?.length || 0) * 5,
   );
 
-  //deductions for hallucinated or low confidence fields
+  // 6. Hallucination / Grounding Penalty
   let groundingDeductions = 0;
   if (
     lowConfidenceFields.includes("buying_intent") ||
     lowConfidenceFields.includes("customer_problem")
   ) {
-    groundingDeductions += 15; // heavily penalise if primary signals were ungrounded
+    groundingDeductions += 15;
   }
-
   const otherLowConfCount = lowConfidenceFields.filter(
     (f) => f !== "buying_intent" && f !== "customer_problem",
   ).length;
   groundingDeductions += otherLowConfCount * 5;
-  // Calculate total and clamp between 0 and 100
+
+  // 7. Calculate Final Score clamped between 0 and 100
   const rawScore =
     intentPoints +
     severityPoints +
@@ -81,11 +90,14 @@ export function calculateLeadScore(
     completenessPoints -
     objectionDeductions -
     groundingDeductions;
+
   const finalScore = Math.max(0, Math.min(100, rawScore));
+
   // Determine Tier
   let tier: "HOT" | "WARM" | "COLD" = "COLD";
   if (finalScore >= 70) tier = "HOT";
   else if (finalScore >= 40) tier = "WARM";
+
   return {
     score: finalScore,
     tier,
@@ -100,3 +112,4 @@ export function calculateLeadScore(
     },
   };
 }
+
