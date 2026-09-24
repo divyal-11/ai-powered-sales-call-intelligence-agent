@@ -19,11 +19,8 @@ export default function Header({
 
   return (
     <header style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      padding: "0 2rem",
-      height: "60px",
+      padding: "0 1.5rem",
+      height: "58px",
       backgroundColor: "var(--bg-surface)",
       borderBottom: "1px solid var(--border-subtle)",
       position: "sticky",
@@ -32,6 +29,15 @@ export default function Header({
       flexShrink: 0,
       transition: "background-color var(--transition-normal), border-color var(--transition-normal)",
     }}>
+      <div style={{
+        maxWidth: "1140px",
+        margin: "0 auto",
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}>
       {/* Brand Identity */}
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <div style={{
@@ -213,6 +219,7 @@ export default function Header({
           Analyze Call
         </button>
       </div>
-    </header>
+    </div>
+  </header>
   );
 }
