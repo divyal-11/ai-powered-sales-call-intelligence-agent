@@ -74,6 +74,7 @@ router.get("/", async (req: Request, res: Response) => {
             buyingIntent: true,
             buyingIntentScore: true,
             customerProblem: true,
+            nextStep: true,
           }
         }
         // rawText intentionally excluded — it can be huge, don't send in list view
