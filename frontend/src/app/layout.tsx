@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Space_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "../lib/theme";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -14,7 +15,7 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "StoneForge Research | Sales Call Intelligence OS",
+  title: "StoneForge | Sales Intelligence OS",
   description: "Non-destructive electromagnetic imaging intelligence & lead qualification",
 };
 
@@ -25,7 +26,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${spaceMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
