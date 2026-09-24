@@ -84,9 +84,8 @@ export default function MetricsBar({
       display: "grid",
       gridTemplateColumns: "repeat(4, 1fr)",
       gap: "1rem",
-      padding: "1.25rem 2rem",
+      padding: 0,
       flexShrink: 0,
-      borderBottom: "1px solid var(--border-subtle)",
     }}>
       {cards.map((card) => {
         const isSelected = activeFilter === card.key;
