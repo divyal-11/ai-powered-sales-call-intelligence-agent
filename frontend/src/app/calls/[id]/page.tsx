@@ -171,8 +171,7 @@ export default function CallDetailPage() {
         top: 0,
         zIndex: 30,
         height: "60px",
-        backgroundColor: "rgba(18, 20, 26, 0.95)",
-        backdropFilter: "blur(12px)",
+        backgroundColor: "var(--bg-surface)",
         borderBottom: "1px solid var(--border-subtle)",
         display: "flex",
         alignItems: "center",
@@ -360,7 +359,7 @@ export default function CallDetailPage() {
                   cx="20"
                   cy="20"
                   r={circleRadius}
-                  stroke="rgba(255, 255, 255, 0.08)"
+                  stroke="var(--border-medium)"
                   strokeWidth="3.2"
                   fill="none"
                 />
@@ -437,9 +436,9 @@ export default function CallDetailPage() {
                   letterSpacing: "0.04em",
                   padding: "0.15rem 0.5rem",
                   borderRadius: "var(--radius-xs)",
-                  backgroundColor: insight.severity === "high" ? "rgba(239, 68, 68, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                  backgroundColor: insight.severity === "high" ? "rgba(239, 68, 68, 0.12)" : "rgba(245, 158, 11, 0.12)",
                   border: `1px solid ${insight.severity === "high" ? "rgba(239, 68, 68, 0.35)" : "rgba(245, 158, 11, 0.35)"}`,
-                  color: insight.severity === "high" ? "#FCA5A5" : "#FCD34D",
+                  color: insight.severity === "high" ? "var(--tier-hot-text)" : "var(--tier-warm-text)",
                 }}>
                   {insight.severity} Severity
                 </span>
@@ -484,7 +483,7 @@ export default function CallDetailPage() {
               <div style={{
                 width: "100%",
                 height: "5px",
-                backgroundColor: "rgba(255, 255, 255, 0.08)",
+                backgroundColor: "var(--border-medium)",
                 borderRadius: "3px",
                 marginTop: "0.6rem",
                 overflow: "hidden",
@@ -694,8 +693,8 @@ export default function CallDetailPage() {
                           alignItems: "flex-start",
                           gap: "0.6rem",
                           fontSize: "0.82rem",
-                          color: "var(--text-secondary)",
-                          lineHeight: 1.45,
+                          color: "var(--text-primary)",
+                          lineHeight: 1.5,
                         }}>
                           <span style={{ color: "var(--accent-orange)", fontSize: "0.85rem", lineHeight: 1 }}>•</span>
                           <span>{q.content}</span>
@@ -721,8 +720,8 @@ export default function CallDetailPage() {
                           alignItems: "flex-start",
                           gap: "0.6rem",
                           fontSize: "0.82rem",
-                          color: "var(--text-secondary)",
-                          lineHeight: 1.45,
+                          color: "var(--text-primary)",
+                          lineHeight: 1.5,
                         }}>
                           <span style={{ color: "#34D399", fontSize: "0.85rem", lineHeight: 1 }}>✓</span>
                           <span>{a.content}</span>
@@ -798,10 +797,10 @@ export default function CallDetailPage() {
                   border: "1px solid var(--border-subtle)",
                   borderRadius: "var(--radius-sm)",
                   padding: "1rem 1.15rem",
-                  fontSize: "0.82rem",
+                  fontSize: "0.84rem",
                   lineHeight: 1.65,
                   whiteSpace: "pre-wrap",
-                  color: "var(--text-secondary)",
+                  color: "var(--text-primary)",
                   maxHeight: "360px",
                   overflowY: "auto",
                   fontFamily: "var(--font-sans)",
