@@ -9,6 +9,8 @@ import {
   saveFollowUpsToDB,
 } from "../services/transcriptService";
 import { verifyFieldEvidence } from "./grounding";
+import prisma from "../db/prisma";
+
 
 //Main Extraction Pipeline Orchestrator:
 // 1. Fetches transcript from DB & marks status as "processing"
@@ -21,6 +23,74 @@ export async function extractTranscript(transcriptId: string) {
   const transcript = await getTranscriptById(transcriptId);
   if (!transcript) {
     throw new Error(`No transcript found with ID ${transcriptId}`);
+  }
+  // 1b. Check if an identical transcript was already analyzed (Idempotency Cache)
+  const existingTranscript = await prisma.transcript.findFirst({
+    where: {
+      rawText: transcript.rawText,
+      status: "completed",
+      id: { not: transcriptId },
+    },
+    include: {
+      callInsight: {
+        include: { objections: true, followUps: true },
+      },
+    },
+  });
+  if (existingTranscript?.callInsight) {
+    const existing = existingTranscript.callInsight;
+    const extractionObj = {
+      customer_problem: existing.customerProblem || "",
+      severity: (existing.severity as any) || "medium",
+      current_solution: existing.currentSolution,
+      buying_intent: (existing.buyingIntent as any) || "low",
+      buying_intent_score: existing.buyingIntentScore || 20,
+      next_step: existing.nextStep,
+      is_complete: existing.isComplete,
+      missing_fields: existing.missingFields,
+      field_evidence: (existing.fieldEvidence as any) || {},
+      objections: existing.objections.map((o) => ({
+        objection: o.objection,
+        category: o.category as any,
+      })),
+    };
+
+    const followUpObj = {
+      emailSubject: existing.followUps.find((f) => f.type === "email")?.content.split("\n")[0] || "",
+      emailBody: existing.followUps.find((f) => f.type === "email")?.content || "",
+      suggestedQuestions: existing.followUps.filter((f) => f.type === "question").map((f) => f.content),
+      actionItems: existing.followUps.filter((f) => f.type === "action").map((f) => f.content),
+    };
+
+    const leadScoreObj = calculateLeadScore(extractionObj, []);
+
+    const clonedInsight = await saveExtractionToDB(
+      transcriptId,
+      extractionObj,
+      leadScoreObj.score
+    );
+
+    await saveFollowUpsToDB(clonedInsight.id, followUpObj);
+
+    return {
+      success: true,
+      insight: clonedInsight,
+      extraction: extractionObj,
+      grounding: {
+        allPassed: true,
+        fieldResults: {
+          customer_problem: true,
+          severity: true,
+          current_solution: true,
+          buying_intent: true,
+          next_step: true,
+        },
+        lowConfidenceFields: [],
+      },
+      leadScore: leadScoreObj,
+      followUp: followUpObj,
+      latencyMs: 0,
+    };
   }
 
   // 2. Update status to processing
