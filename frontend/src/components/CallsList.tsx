@@ -28,12 +28,10 @@ export default function CallsList({
     const company = c.sourceMeta?.company?.toLowerCase() || "";
     const prospect = c.sourceMeta?.prospect?.toLowerCase() || "";
     const problem = c.callInsight?.customerProblem?.toLowerCase() || "";
-    const nextStep = c.callInsight?.nextStep?.toLowerCase() || "";
     const matchesSearch =
       company.includes(externalSearch.toLowerCase()) ||
       prospect.includes(externalSearch.toLowerCase()) ||
-      problem.includes(externalSearch.toLowerCase()) ||
-      nextStep.includes(externalSearch.toLowerCase());
+      problem.includes(externalSearch.toLowerCase());
 
     const score = c.callInsight?.leadScore ?? 0;
     if (currentTier === "HOT") return matchesSearch && score >= 75;
@@ -53,21 +51,29 @@ export default function CallsList({
     { key: "ALL", label: "All Calls", count: calls.length },
     { key: "HOT", label: "Hot Leads", count: hotCount },
     { key: "WARM", label: "Warm Leads", count: warmCount },
-    { key: "COLD", label: "Cold / Disqualified", count: coldCount },
+    { key: "COLD", label: "Cold", count: coldCount },
   ];
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <div style={{
+      backgroundColor: "var(--bg-surface)",
+      border: "1px solid var(--border-subtle)",
+      borderRadius: "var(--radius-md)",
+      boxShadow: "var(--shadow-card)",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+    }}>
       {/* Tier Filter Tabs Toolbar */}
       <div style={{
-        padding: "0.85rem 2rem",
+        padding: "0.75rem 1.5rem",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
         borderBottom: "1px solid var(--border-subtle)",
         backgroundColor: "var(--bg-surface)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
           {tierFilters.map(({ key, label, count }) => {
             const isActive = currentTier === key;
             return (
@@ -77,14 +83,14 @@ export default function CallsList({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.4rem",
-                  padding: "0.35rem 0.8rem",
+                  gap: "0.35rem",
+                  padding: "0.3rem 0.75rem",
                   backgroundColor: isActive ? "var(--bg-surface-elevated)" : "transparent",
                   border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
                   color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
                   borderRadius: "var(--radius-sm)",
                   cursor: "pointer",
-                  fontSize: "0.78rem",
+                  fontSize: "0.76rem",
                   fontWeight: isActive ? 600 : 500,
                   fontFamily: "var(--font-sans)",
                   transition: "all var(--transition-fast)",
@@ -93,7 +99,7 @@ export default function CallsList({
                 <span>{label}</span>
                 <span style={{
                   fontSize: "0.65rem",
-                  padding: "0.1rem 0.4rem",
+                  padding: "0.1rem 0.35rem",
                   borderRadius: "var(--radius-full)",
                   backgroundColor: isActive ? "var(--accent-orange-muted)" : "var(--bg-hover)",
                   color: isActive ? "var(--accent-orange)" : "var(--text-muted)",
@@ -106,24 +112,22 @@ export default function CallsList({
           })}
         </div>
 
-        <span style={{ fontSize: "0.74rem", color: "var(--text-muted)" }}>
-          Showing {filteredCalls.length} of {calls.length} calls
+        <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>
+          {filteredCalls.length} of {calls.length} calls
         </span>
       </div>
 
-      {/* Table Column Headers */}
+      {/* Table Column Headers (4 Clean Focused Columns) */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "260px 1.2fr 200px 110px 130px 85px",
-        padding: "0.65rem 2rem",
+        gridTemplateColumns: "280px 1fr 140px 95px",
+        padding: "0.6rem 1.5rem",
         borderBottom: "1px solid var(--border-subtle)",
         backgroundColor: "var(--bg-surface-elevated)",
         alignItems: "center",
       }}>
-        <span className="label-muted">ACCOUNT / PROSPECT</span>
-        <span className="label-muted">CUSTOMER PAIN POINT</span>
-        <span className="label-muted">INTENT & NEXT STEP</span>
-        <span className="label-muted">TIER</span>
+        <span className="label-muted">COMPANY NAME</span>
+        <span className="label-muted">KEY TOPIC</span>
         <span className="label-muted">LEAD SCORE</span>
         <span className="label-muted" style={{ textAlign: "right" }}>DATE</span>
       </div>
@@ -131,12 +135,12 @@ export default function CallsList({
       {/* Rows Container */}
       <div style={{ flex: 1, overflowY: "auto" }}>
         {filteredCalls.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "5rem 2rem", color: "var(--text-secondary)" }}>
-            <p style={{ fontSize: "0.9rem", fontWeight: 600, color: "var(--text-primary)" }}>
+          <div style={{ textAlign: "center", padding: "4rem 2rem", color: "var(--text-secondary)" }}>
+            <p style={{ fontSize: "0.88rem", fontWeight: 600, color: "var(--text-primary)" }}>
               No calls match your criteria
             </p>
-            <p style={{ fontSize: "0.78rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
-              {externalSearch ? `No matches for "${externalSearch}".` : "No calls found in this category."}
+            <p style={{ fontSize: "0.76rem", color: "var(--text-muted)", marginTop: "0.25rem" }}>
+              {externalSearch ? `No matches found for "${externalSearch}".` : "No calls logged in this filter."}
             </p>
           </div>
         ) : (
@@ -166,9 +170,6 @@ export default function CallsList({
             const prospect = c.sourceMeta?.prospect || "Unspecified Contact";
             const problem = c.callInsight?.customerProblem;
             const severity = c.callInsight?.severity;
-            const buyingIntent = c.callInsight?.buyingIntent;
-            const intentScore = c.callInsight?.buyingIntentScore;
-            const nextStep = c.callInsight?.nextStep;
             const isHovered = hoveredId === c.id;
 
             return (
@@ -179,22 +180,22 @@ export default function CallsList({
                 onMouseLeave={() => setHoveredId(null)}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "260px 1.2fr 200px 110px 130px 85px",
-                  padding: "0.95rem 2rem",
+                  gridTemplateColumns: "280px 1fr 140px 95px",
+                  padding: "0.85rem 1.5rem",
                   borderBottom: "1px solid var(--border-subtle)",
                   cursor: "pointer",
                   backgroundColor: isHovered ? "var(--bg-hover)" : "transparent",
                   borderLeft: isHovered ? "3px solid var(--accent-orange)" : "3px solid transparent",
                   transition: "all var(--transition-fast)",
                   alignItems: "center",
-                  gap: "0.75rem",
+                  gap: "1rem",
                 }}
               >
-                {/* Account & Prospect */}
+                {/* 1. COMPANY NAME */}
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", minWidth: 0 }}>
                   <div style={{
-                    width: "36px",
-                    height: "36px",
+                    width: "34px",
+                    height: "34px",
                     borderRadius: "var(--radius-sm)",
                     backgroundColor: "var(--bg-surface-elevated)",
                     border: "1px solid var(--border-subtle)",
@@ -202,7 +203,7 @@ export default function CallsList({
                     alignItems: "center",
                     justifyContent: "center",
                     fontWeight: 700,
-                    fontSize: "0.85rem",
+                    fontSize: "0.82rem",
                     color: isHot ? "var(--accent-orange)" : "var(--text-primary)",
                     flexShrink: 0,
                   }}>
@@ -211,7 +212,7 @@ export default function CallsList({
                   <div style={{ minWidth: 0, overflow: "hidden" }}>
                     <div style={{
                       fontWeight: 600,
-                      fontSize: "0.88rem",
+                      fontSize: "0.86rem",
                       color: "var(--text-primary)",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
@@ -220,7 +221,7 @@ export default function CallsList({
                       {company}
                     </div>
                     <div style={{
-                      fontSize: "0.74rem",
+                      fontSize: "0.72rem",
                       color: "var(--text-secondary)",
                       marginTop: "1px",
                       whiteSpace: "nowrap",
@@ -232,7 +233,7 @@ export default function CallsList({
                   </div>
                 </div>
 
-                {/* Customer Pain Point */}
+                {/* 2. KEY TOPIC */}
                 <div style={{ minWidth: 0, paddingRight: "1rem" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
                     {severity && (
@@ -258,79 +259,37 @@ export default function CallsList({
                       textOverflow: "ellipsis",
                       lineHeight: 1.35,
                     }}>
-                      {problem || "No customer problem statement detected"}
+                      {problem || "General discovery call"}
                     </span>
                   </div>
                 </div>
 
-                {/* Intent & Next Step */}
-                <div style={{ minWidth: 0, paddingRight: "0.5rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
-                    <span style={{
-                      fontSize: "0.74rem",
-                      fontWeight: 600,
-                      color: buyingIntent === "high" ? "var(--accent-orange)" : "var(--text-secondary)",
-                    }}>
-                      {buyingIntent ? `${buyingIntent.toUpperCase()} INTENT` : "INTENT PENDING"}
-                    </span>
-                    {intentScore !== null && intentScore !== undefined && (
-                      <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-                        ({intentScore}%)
-                      </span>
-                    )}
-                  </div>
-                  <div style={{
-                    fontSize: "0.72rem",
-                    color: nextStep ? "var(--text-secondary)" : "var(--text-muted)",
-                    marginTop: "2px",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}>
-                    {nextStep ? `↳ ${nextStep}` : "↳ No next step recorded"}
-                  </div>
-                </div>
-
-                {/* Tier Badge */}
+                {/* 3. LEAD SCORE */}
                 <div>
-                  <span style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.35rem",
-                    padding: "0.2rem 0.6rem",
-                    borderRadius: "var(--radius-full)",
-                    backgroundColor: tierBg,
-                    border: `1px solid ${tierBorder}`,
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: tierColor,
-                  }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "4px" }}>
                     <span style={{
-                      width: "5px",
-                      height: "5px",
-                      borderRadius: "50%",
-                      backgroundColor: tierColor,
-                    }} />
-                    {tierLabel}
-                  </span>
-                </div>
-
-                {/* Lead Score with Mini Progress Bar */}
-                <div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "0.25rem", marginBottom: "4px" }}>
-                    <span style={{
-                      fontSize: "0.95rem",
+                      fontSize: "0.92rem",
                       fontWeight: 700,
                       color: tierColor,
                       fontFamily: "var(--font-mono)",
                     }}>
                       {score}
                     </span>
-                    <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>/ 100</span>
+                    <span style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      padding: "0.1rem 0.4rem",
+                      borderRadius: "var(--radius-full)",
+                      backgroundColor: tierBg,
+                      border: `1px solid ${tierBorder}`,
+                      color: tierColor,
+                    }}>
+                      {tierLabel}
+                    </span>
                   </div>
                   <div style={{
-                    width: "75px",
-                    height: "4px",
+                    width: "70px",
+                    height: "3.5px",
                     borderRadius: "2px",
                     backgroundColor: "var(--bg-surface-elevated)",
                     overflow: "hidden",
@@ -344,14 +303,14 @@ export default function CallsList({
                   </div>
                 </div>
 
-                {/* Date & Hover Arrow */}
+                {/* 4. DATE */}
                 <div style={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "flex-end",
-                  gap: "0.5rem",
+                  gap: "0.45rem",
                 }}>
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
+                  <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                     {new Date(c.createdAt).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "short",
