@@ -37,6 +37,7 @@ export async function runExtractionLLM(
     response_format: { type: "json_object" },
     max_completion_tokens: 4096,
     temperature: 0,
+    seed: 42
   });
 
   const latencyMs = Date.now() - startTime;
