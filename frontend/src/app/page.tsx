@@ -45,56 +45,65 @@ export default function Dashboard() {
         onSearchChange={(val) => setSearch(val)}
       />
 
-      {/* Interactive KPI Cards: Total, Hot, Warm, Cold with live filtering */}
-      <MetricsBar
-        calls={calls}
-        activeFilter={activeFilter}
-        onFilterChange={(filter) => setActiveFilter(filter)}
-      />
-
-      {/* Main Content: Real Call Intelligence Pipeline Table */}
-      {loading ? (
-        <div style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "0.75rem",
-          minHeight: "350px",
-        }}>
-          <div className="indicator-pulse" style={{
-            width: "12px",
-            height: "12px",
-            borderRadius: "50%",
-            backgroundColor: "var(--accent-orange)",
-          }} />
-          <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-            Loading sales call intelligence...
-          </p>
-        </div>
-      ) : error ? (
-        <div style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "350px",
-        }}>
-          <p style={{ color: "#EF4444", fontSize: "0.9rem", fontWeight: 600 }}>{error}</p>
-          <p style={{ marginTop: "0.4rem", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-            Make sure your backend server is running on http://localhost:3001
-          </p>
-        </div>
-      ) : (
-        <CallsList
+      {/* Center Compact Container */}
+      <div style={{
+        maxWidth: "1140px",
+        margin: "0 auto",
+        width: "100%",
+        padding: "1.5rem 1.5rem 3rem 1.5rem",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.25rem",
+      }}>
+        {/* Interactive KPI Cards: Total, Hot, Warm, Cold with live filtering */}
+        <MetricsBar
           calls={calls}
-          externalSearch={search}
-          filterTier={activeFilter}
+          activeFilter={activeFilter}
           onFilterChange={(filter) => setActiveFilter(filter)}
         />
-      )}
+
+        {/* Main Content: Real Call Intelligence Pipeline Table */}
+        {loading ? (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "0.75rem",
+            padding: "5rem 0",
+          }}>
+            <div className="indicator-pulse" style={{
+              width: "12px",
+              height: "12px",
+              borderRadius: "50%",
+              backgroundColor: "var(--accent-orange)",
+            }} />
+            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+              Loading sales call intelligence...
+            </p>
+          </div>
+        ) : error ? (
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "4rem 0",
+          }}>
+            <p style={{ color: "#EF4444", fontSize: "0.9rem", fontWeight: 600 }}>{error}</p>
+            <p style={{ marginTop: "0.4rem", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+              Make sure your backend server is running on http://localhost:3001
+            </p>
+          </div>
+        ) : (
+          <CallsList
+            calls={calls}
+            externalSearch={search}
+            filterTier={activeFilter}
+            onFilterChange={(filter) => setActiveFilter(filter)}
+          />
+        )}
+      </div>
 
       {/* Audio & Text Ingestion Modal */}
       <AudioUploadModal
