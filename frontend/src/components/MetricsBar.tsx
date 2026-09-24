@@ -4,76 +4,78 @@ import { TranscriptListItem } from "../types";
 
 interface MetricsBarProps {
   calls: TranscriptListItem[];
+  activeFilter?: "ALL" | "HOT" | "WARM" | "COLD";
+  onFilterChange?: (filter: "ALL" | "HOT" | "WARM" | "COLD") => void;
 }
 
-export default function MetricsBar({ calls }: MetricsBarProps) {
+export default function MetricsBar({
+  calls,
+  activeFilter = "ALL",
+  onFilterChange,
+}: MetricsBarProps) {
   const total = calls.length;
 
   let hotCount = 0;
   let warmCount = 0;
   let coldCount = 0;
-  let totalScore = 0;
 
   calls.forEach((c) => {
     const score = c.callInsight?.leadScore ?? 0;
-    totalScore += score;
     if (score >= 75) hotCount++;
     else if (score >= 40) warmCount++;
     else if (score > 0) coldCount++;
   });
 
-  const avgScore = total > 0 ? (totalScore / total).toFixed(1) : "0.0";
   const hotPct = total > 0 ? Math.round((hotCount / total) * 100) : 0;
+  const warmPct = total > 0 ? Math.round((warmCount / total) * 100) : 0;
 
-  const kpis = [
+  const cards = [
     {
-      title: "Total Calls Analyzed",
-      value: total.toString(),
-      trend: "+14.2% ↗",
-      trendType: "positive",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-        </svg>
-      ),
-      subtext: "Logged across audio & text",
+      key: "ALL" as const,
+      title: "TOTAL CALLS",
+      value: total,
+      subtext: "Full analyzed corpus",
+      badge: "Corpus",
+      color: "var(--text-primary)",
+      borderColor: "var(--border-subtle)",
+      bgGlow: "transparent",
+      dotColor: "var(--text-muted)",
     },
     {
-      title: "Hot Leads Pipeline",
-      value: hotCount.toString(),
-      trend: `${hotPct}% conversion`,
-      trendType: "hot",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
-      ),
-      subtext: "Score 75-100 high probability",
+      key: "HOT" as const,
+      title: "HOT LEADS",
+      value: hotCount,
+      subtext: `${hotPct}% high-conviction pipeline`,
+      badge: "Score 75+",
+      color: "var(--tier-hot-text)",
+      borderColor: "var(--tier-hot-border)",
+      bgGlow: "var(--tier-hot-bg)",
+      dotColor: "var(--tier-hot-text)",
+      pulse: true,
     },
     {
-      title: "Average Deal Index",
-      value: `${avgScore}`,
-      trend: "+4.8% ↗",
-      trendType: "positive",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M16 12l-4-4-4 4M12 16V9" />
-        </svg>
-      ),
-      subtext: "Out of 100 benchmark score",
+      key: "WARM" as const,
+      title: "WARM PROSPECTS",
+      value: warmCount,
+      subtext: `${warmPct}% follow-up qualified`,
+      badge: "Score 40-74",
+      color: "var(--tier-warm-text)",
+      borderColor: "var(--tier-warm-border)",
+      bgGlow: "var(--tier-warm-bg)",
+      dotColor: "var(--tier-warm-text)",
+      pulse: false,
     },
     {
-      title: "AI Spoken Grounding",
-      value: "100%",
-      trend: "✓ Verified",
-      trendType: "verified",
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      ),
-      subtext: "Zero hallucinations guaranteed",
+      key: "COLD" as const,
+      title: "COLD / DISQUALIFIED",
+      value: coldCount,
+      subtext: "Low purchase intent",
+      badge: "Score <40",
+      color: "var(--tier-cold-text)",
+      borderColor: "var(--border-subtle)",
+      bgGlow: "transparent",
+      dotColor: "var(--tier-cold-text)",
+      pulse: false,
     },
   ];
 
@@ -81,85 +83,98 @@ export default function MetricsBar({ calls }: MetricsBarProps) {
     <div style={{
       display: "grid",
       gridTemplateColumns: "repeat(4, 1fr)",
-      gap: "1.25rem",
-      padding: "1.5rem 2rem 1.25rem 2rem",
+      gap: "1rem",
+      padding: "1.25rem 2rem",
+      flexShrink: 0,
+      borderBottom: "1px solid var(--border-subtle)",
     }}>
-      {kpis.map((kpi) => (
-        <div
-          key={kpi.title}
-          className="nexus-card"
-          style={{
-            padding: "1.15rem 1.35rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Card Header (Icon + Title + Info) */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <div style={{
-                width: "28px",
-                height: "28px",
-                borderRadius: "var(--radius-sm)",
-                backgroundColor: "var(--bg-surface-elevated)",
-                color: kpi.trendType === "hot" ? "var(--accent-orange)" : "var(--accent-primary)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                {kpi.icon}
+      {cards.map((card) => {
+        const isSelected = activeFilter === card.key;
+        return (
+          <div
+            key={card.key}
+            onClick={() => onFilterChange && onFilterChange(card.key)}
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              backgroundImage: card.bgGlow !== "transparent" ? `radial-gradient(ellipse at 10% 0%, ${card.bgGlow}, transparent 70%)` : undefined,
+              border: isSelected
+                ? "2px solid var(--accent-orange)"
+                : `1px solid ${card.borderColor}`,
+              borderRadius: "var(--radius-md)",
+              padding: "1rem 1.15rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              cursor: "pointer",
+              transition: "transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast)",
+              boxShadow: isSelected ? "0 0 10px var(--accent-orange-muted)" : "var(--shadow-sm)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            onMouseEnter={(e) => {
+              if (!isSelected) e.currentTarget.style.borderColor = "var(--border-medium)";
+            }}
+            onMouseLeave={(e) => {
+              if (!isSelected) e.currentTarget.style.borderColor = card.borderColor;
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <span
+                  className={card.pulse ? "indicator-pulse" : ""}
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    backgroundColor: card.dotColor,
+                    display: "inline-block",
+                  }}
+                />
+                <span className="label-muted" style={{ fontSize: "0.65rem" }}>
+                  {card.title}
+                </span>
               </div>
-              <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--text-secondary)" }}>
-                {kpi.title}
+              <span style={{
+                fontSize: "0.62rem",
+                fontWeight: 600,
+                padding: "0.15rem 0.45rem",
+                borderRadius: "var(--radius-xs)",
+                backgroundColor: isSelected ? "var(--accent-orange-muted)" : "var(--bg-surface-elevated)",
+                color: isSelected ? "var(--accent-orange)" : "var(--text-muted)",
+              }}>
+                {card.badge}
               </span>
             </div>
-            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", cursor: "pointer" }}>
-              ⓘ
-            </span>
-          </div>
 
-          {/* Metric Value & Trend Pill */}
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginTop: "0.2rem" }}>
             <div style={{
               fontSize: "1.85rem",
               fontWeight: 700,
-              color: "var(--text-primary)",
-              letterSpacing: "-0.02em",
+              color: card.color,
               lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              fontFamily: "var(--font-sans)",
             }}>
-              {kpi.value}
+              {card.value}
             </div>
 
-            <span style={{
-              fontSize: "0.68rem",
-              fontWeight: 600,
-              padding: "0.2rem 0.55rem",
-              borderRadius: "var(--radius-full)",
-              backgroundColor: kpi.trendType === "hot"
-                ? "var(--tier-hot-bg)"
-                : kpi.trendType === "verified"
-                ? "var(--accent-emerald-bg)"
-                : "var(--accent-emerald-bg)",
-              color: kpi.trendType === "hot"
-                ? "var(--tier-hot-text)"
-                : kpi.trendType === "verified"
-                ? "var(--accent-emerald-text)"
-                : "var(--accent-emerald-text)",
-              border: kpi.trendType === "hot"
-                ? "1px solid var(--tier-hot-border)"
-                : "1px solid rgba(16, 185, 129, 0.2)",
+            <div style={{
+              fontSize: "0.72rem",
+              color: "var(--text-secondary)",
+              marginTop: "0.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}>
-              {kpi.trend}
-            </span>
+              <span>{card.subtext}</span>
+              {isSelected && (
+                <span style={{ fontSize: "0.65rem", color: "var(--accent-orange)", fontWeight: 600 }}>
+                  Active Filter
+                </span>
+              )}
+            </div>
           </div>
-
-          {/* Subtitle */}
-          <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.5rem" }}>
-            {kpi.subtext}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
