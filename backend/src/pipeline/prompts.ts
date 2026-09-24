@@ -41,10 +41,13 @@ CRITICAL RULES:
 1. Noisy Speech-to-Text: The transcript is messy audio speech-to-text. Map phonetic mistakes to reality (e.g. "See face" or "the steepest" = seepage, "Prestige" = Prestige Group).
 2. Verbatim Quotes: Every field in "field_evidence" MUST be a single, continuous exact quote directly from the transcript. Do NOT paraphrase, summarize, or stitch separate sentences with ellipses (...). If a field has no quote, return null.
 3. Buying Intent Scoring Anchors:
-   - "high" (score 75-90): Prospect agreed to a meeting, demo, or trial (e.g., agreed to meet in Bangalore). Set buying_intent_score to 80.
-   - "medium" (score 40-74): Prospect showed interest or asked questions, but didn't agree to a meeting yet.
-   - "low" (score 1-39): Prospect was uninterested, dismissive, or hurried off the call.
-4. Qualification Missing Fields: Only consider these standard fields: ["budget", "authority", "timeline"]. If a specific date or follow-up is agreed, "timeline" is addressed. If they lead projects, "authority" is addressed. Include "budget" only if money was not discussed.
+   - "high": Prospect agreed to a meeting, demo, trial, or asked for proposal/pricing. Output EXACTLY 80 for buying_intent_score.
+   - "medium": Prospect showed interest, discussed problems, or asked questions, but did not commit to a demo yet. Output EXACTLY 50 for buying_intent_score.
+   - "low": Prospect was passive, dismissive, already satisfied with current solution, or hurried off. Output EXACTLY 20 for buying_intent_score.
+4. Qualification Missing Fields: Only consider these standard fields: ["budget", "authority", "timeline"].
+   - "timeline": Addressed if a date or concrete follow-up window is agreed; otherwise list as missing.
+   - "authority": Addressed if the prospect is a decision maker, engineer, project lead, or VP; otherwise list as missing.
+   - "budget": Addressed only if cost or funding was discussed; otherwise list as missing.
 5. Objections: If no objections were raised, return an empty array [].
 6. Return ONLY valid JSON.
 `;
