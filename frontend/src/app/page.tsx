@@ -101,67 +101,43 @@ export default function Dashboard() {
           onFilterChange={(filter) => setActiveFilter(filter)}
         />
 
-        {/* Transparent AI SQL Query Banner */}
+        {/* Clean Results Indicator */}
         {aiQueryResult && (
           <div style={{
-            backgroundColor: "var(--bg-surface)",
-            border: "1px solid var(--accent-orange)",
-            borderRadius: "var(--radius-md)",
-            padding: "0.85rem 1.15rem",
             display: "flex",
-            flexDirection: "column",
-            gap: "0.45rem",
-            boxShadow: "0 2px 10px var(--accent-orange-glow)",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            borderRadius: "var(--radius-md)",
+            padding: "0.6rem 1rem",
           }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <span style={{
-                  backgroundColor: "var(--accent-orange-muted)",
-                  color: "var(--accent-orange)",
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  padding: "2px 6px",
-                  borderRadius: "var(--radius-sm)",
-                  letterSpacing: "0.04em",
-                }}>
-                  AI SQL QUERY
-                </span>
-                <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
-                  &ldquo;{aiQueryResult.question}&rdquo;
-                </span>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>
-                  ({displayedCalls.length} matched in {(aiQueryResult.latencyMs / 1000).toFixed(2)}s)
-                </span>
-              </div>
-              <button
-                onClick={handleResetAiQuery}
-                style={{
-                  background: "none",
-                  border: "1px solid var(--border-medium)",
-                  color: "var(--text-secondary)",
-                  borderRadius: "var(--radius-sm)",
-                  padding: "2px 8px",
-                  fontSize: "0.72rem",
-                  cursor: "pointer",
-                  fontFamily: "var(--font-sans)",
-                }}
-              >
-                Reset Filter
-              </button>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>
+                Showing results for
+              </span>
+              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                &ldquo;{aiQueryResult.question}&rdquo;
+              </span>
+              <span style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>
+                ({displayedCalls.length} {displayedCalls.length === 1 ? "call" : "calls"})
+              </span>
             </div>
-            <div style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "0.73rem",
-              backgroundColor: "var(--bg-surface-elevated)",
-              padding: "0.45rem 0.75rem",
-              borderRadius: "var(--radius-sm)",
-              color: "var(--text-secondary)",
-              border: "1px solid var(--border-subtle)",
-              wordBreak: "break-all",
-            }}>
-              <span style={{ color: "var(--accent-orange)", fontWeight: 600 }}>SQL: </span>
-              {aiQueryResult.sql}
-            </div>
+            <button
+              onClick={handleResetAiQuery}
+              style={{
+                background: "none",
+                border: "1px solid var(--border-medium)",
+                color: "var(--text-secondary)",
+                borderRadius: "var(--radius-sm)",
+                padding: "2px 8px",
+                fontSize: "0.72rem",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              Clear
+            </button>
           </div>
         )}
 
