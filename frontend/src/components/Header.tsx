@@ -8,12 +8,16 @@ interface HeaderProps {
   onOpenUpload: () => void;
   search?: string;
   onSearchChange?: (val: string) => void;
+  onAiQuery?: (question: string) => void;
+  isAiLoading?: boolean;
 }
 
 export default function Header({
   onOpenUpload,
   search = "",
   onSearchChange,
+  onAiQuery,
+  isAiLoading = false,
 }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
@@ -105,15 +109,22 @@ export default function Header({
           </svg>
           <input
             type="text"
-            placeholder="Search accounts, pain points, contacts..."
+            placeholder="Search here..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && search.trim() && onAiQuery) {
+                onAiQuery(search.trim());
+              }
+            }}
             style={{
               width: "100%",
               backgroundColor: "var(--bg-surface-elevated)",
               border: "1px solid var(--border-subtle)",
               borderRadius: "var(--radius-md)",
-              padding: "0.48rem 2.2rem 0.48rem 2.3rem",
+              padding: search.trim() && onAiQuery 
+                ? "0.48rem 5.6rem 0.48rem 2.3rem" 
+                : "0.48rem 2.2rem 0.48rem 2.3rem",
               color: "var(--text-primary)",
               fontSize: "0.82rem",
               fontFamily: "var(--font-sans)",
@@ -129,12 +140,41 @@ export default function Header({
               e.currentTarget.style.boxShadow = "none";
             }}
           />
+          {search.trim() && onAiQuery && (
+            <button
+              onClick={() => onAiQuery(search.trim())}
+              disabled={isAiLoading}
+              title="Query database using AI Natural Language to SQL"
+              style={{
+                position: "absolute",
+                right: search ? "1.8rem" : "0.5rem",
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "var(--accent-orange)",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: "var(--radius-sm)",
+                padding: "2px 7px",
+                fontSize: "0.68rem",
+                fontWeight: 600,
+                cursor: isAiLoading ? "wait" : "pointer",
+                fontFamily: "var(--font-sans)",
+                letterSpacing: "0.02em",
+                opacity: isAiLoading ? 0.6 : 1,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "3px",
+              }}
+            >
+              {isAiLoading ? "Querying..." : "Ask AI ↵"}
+            </button>
+          )}
           {search && (
             <button
               onClick={() => onSearchChange("")}
               style={{
                 position: "absolute",
-                right: "0.6rem",
+                right: "0.5rem",
                 top: "50%",
                 transform: "translateY(-50%)",
                 background: "none",

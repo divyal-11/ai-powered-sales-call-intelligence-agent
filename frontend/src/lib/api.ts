@@ -79,3 +79,28 @@ export async function submitTextTranscript(
 
   return { transcriptId: transcript.id };
 }
+
+export interface QueryResponse {
+  success: boolean;
+  question: string;
+  sql: string;
+  results: any[];
+  rowCount: number;
+  latencyMs: number;
+  error?: string;
+}
+
+// Execute natural language query (NLP to SQL) against PostgreSQL
+export async function queryIntelligence(question: string): Promise<QueryResponse> {
+  const res = await fetch(`${API_BASE_URL}/query`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question }),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to execute query");
+  }
+  return res.json();
+}
+
