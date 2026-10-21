@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ quiet: true });
 import Groq from "groq-sdk";
-import prisma from "../db/prisma";
+import { readonlyPrisma } from "../db/prisma";
 import { validateAndSanitizeSql } from "../pipeline/sqlValidator";
 
 
@@ -29,7 +29,7 @@ Columns in "call_intelligence_view":
 - customer_problem (text): the core pain point identified in the call
 - severity (text): 'high', 'medium', or 'low'
 - current_solution (text): what tool or process they currently use
-- buying_intent (text): 'positive', 'neutral', or 'negative'
+- buying_intent (text): 'high', 'medium', or 'low'
 - buying_intent_score (integer): 0 to 100
 - next_step (text): planned next follow-up action
 - lead_score (integer): 0 to 100 deterministic qualification score
@@ -45,9 +45,13 @@ STRICT RULES:
    - "hot lead" or "high priority" means lead_score >= 70
    - "warm lead" means lead_score >= 40 AND lead_score < 70
    - "cold lead" means lead_score < 40
-5. For text searches, use case-insensitive matching with ILIKE (e.g. company ILIKE '%prestige%' or customer_problem ILIKE '%seepage%').
-6. By default, ORDER BY lead_score DESC NULLS LAST.
-7. Include a reasonable LIMIT (default 25 if unspecified).
+5. For buying intent classifications:
+   - "high buying intent" or "strong buying intent" means buying_intent = 'high'
+   - "medium buying intent" means buying_intent = 'medium'
+   - "low buying intent" means buying_intent = 'low'
+6. For text searches, use case-insensitive matching with ILIKE (e.g. company ILIKE '%prestige%' or customer_problem ILIKE '%seepage%').
+7. By default, ORDER BY lead_score DESC NULLS LAST.
+8. Include a reasonable LIMIT (default 25 if unspecified).
 
 FEW-SHOT EXAMPLES:
 Question: "Show me all hot leads"
@@ -58,7 +62,11 @@ SQL: SELECT transcript_id, company, prospect, customer_problem, severity, curren
 
 Question: "Find calls mentioning budget objections"
 SQL: SELECT transcript_id, company, prospect, objections, lead_score FROM "call_intelligence_view" WHERE objections ILIKE '%budget%' ORDER BY lead_score DESC NULLS LAST LIMIT 25
+
+Question: "List accounts with high buying intent ordered by score descending"
+SQL: SELECT transcript_id, company, prospect, buying_intent, buying_intent_score, lead_score, created_at FROM "call_intelligence_view" WHERE buying_intent = 'high' ORDER BY lead_score DESC NULLS LAST LIMIT 25
 `;
+
 
 // Translates a user's natural language question into SQL,
 // validates it against the AST security guardrail,
@@ -95,8 +103,8 @@ export async function executeNaturalLanguageQuery(
 
   const safeSql = validation.sanitizedSql;
 
-  // 3. Execute inside a transaction with 3000ms statement timeout
-  const results = await prisma.$transaction(async (tx) => {
+  // 3. Execute through dedicated read-only role with 3000ms statement timeout
+  const results = await readonlyPrisma.$transaction(async (tx) => {
     // Apply local 3s timeout for this connection only
     await tx.$executeRawUnsafe("SET LOCAL statement_timeout = '3000ms';");
     return await tx.$queryRawUnsafe<any[]>(safeSql);
