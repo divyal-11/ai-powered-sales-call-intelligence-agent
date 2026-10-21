@@ -1,14 +1,27 @@
-import { PrismaClient } from "../generated/prisma/client";
+import dotenv from "dotenv";
+dotenv.config({ quiet: true });
 
+import { PrismaClient, Prisma } from "../generated/prisma/client";
 
-// We create ONE shared instance of PrismaClient for the whole app.
-// Why? Prisma opens a connection pool to the DB. If you created a new
-// PrismaClient() in every file that needs it, you would open hundreds
-// of connection pools — which exhausts your database connections fast.
-// The singleton pattern (one shared instance) prevents that.
-
+// Primary shared instance of PrismaClient (read/write operations)
+// Log only errors and warnings (no query logging to stdout so stdio protocols like MCP remain clean)
 const prisma = new PrismaClient({
-  log: ["query", "error", "warn"], // logs every SQL query in dev — very helpful
+  log: ["error", "warn"],
 });
+
+
+// Dedicated restricted read-only client for Natural Language & MCP queries
+// Connects with READONLY_DATABASE_URL if available, falling back to DATABASE_URL or schema default
+const readonlyUrl = process.env.READONLY_DATABASE_URL || process.env.DATABASE_URL;
+
+const readonlyOptions: Prisma.PrismaClientOptions = {
+  log: ["error", "warn"],
+};
+
+if (readonlyUrl) {
+  readonlyOptions.datasourceUrl = readonlyUrl;
+}
+
+export const readonlyPrisma = new PrismaClient(readonlyOptions);
 
 export default prisma;
