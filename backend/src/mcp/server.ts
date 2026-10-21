@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ quiet: true });
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import prisma from "../db/prisma";
+import prisma, { readonlyPrisma } from "../db/prisma";
 import { executeNaturalLanguageQuery } from "../services/nlpQueryService";
 import { calculateLeadScore } from "../pipeline/leadScoring";
 import { Extraction } from "../pipeline/extractionSchema";
@@ -241,14 +241,14 @@ mcpServer.tool(
 
 // =========================================================================
 // Resource 1: sales://calls/hot-leads
-// Exposes real-time list of hot leads (lead_score >= 70) as an MCP Resource
+// Exposes list of hot leads (lead_score >= 70) as an MCP Resource (read on request)
 // =========================================================================
 mcpServer.resource(
   "hot_leads",
   "sales://calls/hot-leads",
   async (uri) => {
     try {
-      const hotLeads = await prisma.$queryRawUnsafe<any[]>(
+      const hotLeads = await readonlyPrisma.$queryRawUnsafe<any[]>(
         `SELECT transcript_id, company, prospect, customer_problem, severity, lead_score, next_step, created_at 
          FROM "call_intelligence_view" 
          WHERE lead_score >= 70 

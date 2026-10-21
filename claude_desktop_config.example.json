@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "sales-intelligence": {
+      "command": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "c:\\Users\\divya\\Projects\\sales-intelligence-system\\backend\\dist\\mcp\\server.js"
+      ],
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgrespassword@localhost:5433/sales_intelligence?schema=public",
+        "READONLY_DATABASE_URL": "postgresql://readonly_user:readonlypassword@localhost:5433/sales_intelligence?schema=public",
+        "GROQ_API_KEY": "YOUR_GROQ_API_KEY",
+        "DOTENV_CONFIG_QUIET": "true"
+      }
+    }
+  }
+}
