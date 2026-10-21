@@ -23,6 +23,7 @@
     "groq-sdk": "^1.6.0",
     "multer": "^2.4.0",
     "node-sql-parser": "^5.4.0",
+    "prisma": "^6.19.3",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -30,9 +31,9 @@
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.5.1",
-    "prisma": "^6.19.3",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"
   }
 }
+

@@ -42,6 +42,7 @@ RUN npm ci --omit=dev
 
 # Copy generated Prisma client from builder stage
 COPY --from=builder /app/src/generated /app/src/generated
+COPY --from=builder /app/src/generated /app/dist/generated
 COPY --from=builder /app/prisma /app/prisma
 
 # Copy compiled JavaScript from builder stage
@@ -54,4 +55,4 @@ USER node
 
 EXPOSE 3001
 
-CMD ["node", "dist/index.js"]
+CMD ["sh", "-c", "npx prisma db push && node dist/scripts/createView.js && node dist/index.js"]

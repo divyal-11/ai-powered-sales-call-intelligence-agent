@@ -9,9 +9,10 @@ services:
       POSTGRES_PASSWORD: postgrespassword
       POSTGRES_DB: sales_intelligence
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d sales_intelligence"]
       interval: 5s
@@ -33,6 +34,7 @@ services:
       PORT: 3001
       DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/sales_intelligence?schema=public
       DIRECT_URL: postgresql://postgres:postgrespassword@postgres:5432/sales_intelligence?schema=public
+      READONLY_DATABASE_URL: postgresql://readonly_user:readonlypassword@postgres:5432/sales_intelligence?schema=public
       GROQ_API_KEY: ${GROQ_API_KEY:-}
     depends_on:
       postgres:
